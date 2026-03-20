@@ -1,0 +1,6 @@
+const API=import.meta.env.VITE_API_URL||'http://31.97.131.244:3000';
+async function req(path,opts={}){const t=localStorage.getItem('sb_token');const r=await fetch(API+path,{...opts,headers:{'Content-Type':'application/json',...(t?{Authorization:'Bearer '+t}:{})}});const d=await r.json();if(!r.ok)throw new Error(d.error||'Error');return d;}
+export const api={get:p=>req(p),post:(p,b)=>req(p,{method:'POST',body:JSON.stringify(b)}),patch:(p,b)=>req(p,{method:'PATCH',body:JSON.stringify(b)})};
+export async function login(email,password){const SU=import.meta.env.VITE_SUPABASE_URL;const AK=import.meta.env.VITE_SUPABASE_ANON_KEY;const r=await fetch(SU+'/auth/v1/token?grant_type=password',{method:'POST',headers:{'Content-Type':'application/json',apikey:AK},body:JSON.stringify({email,password})});const d=await r.json();if(!r.ok)throw new Error(d.error_description||'Login fallido');localStorage.setItem('sb_token',d.access_token);localStorage.setItem('sb_user',JSON.stringify(d.user));return d;}
+export function logout(){localStorage.removeItem('sb_token');localStorage.removeItem('sb_user');}
+export function getUser(){try{return JSON.parse(localStorage.getItem('sb_user'));}catch{return null;}}
